@@ -178,7 +178,40 @@
     
   }
   
-  #federal Child Tax Credit
+    TrumpEITC<-function(income1, income2, childcare){
+      
+      #Lowest income
+      
+      if(income1 > 0 & income2 > 0){
+        
+        lowestincome<-min(income1,income2)
+        
+      } else {
+        
+        lowestincome<-income1
+        
+      }
+      
+      #phase-in of benefits:
+      if(income1 + income2 <= (15686.27)*(1+married)){
+        #If below the max (15,600 single), you get childcare * 0.0765 or income of lowest earner * 0.07653
+        #capping the benefit at 7.65% of lowest earner's
+        rebate <- min(childcare * 0.0765,lowestincome * 0.0765)
+        #phase-out of benefits:
+      } else {
+        #If above 15,600 single, you phase out at the same rate (to 31,200 single)
+        
+        rebate <-min(childcare * 0.0765, lowestincome * 0.0765)
+        
+        rebate <- max(0, rebate  - (((income1+income2) - (15686.27*(1+married))) * 0.0765))
+        
+      }
+      
+      return(round(rebate))
+      
+    }
+    
+   #federal Child Tax Credit
   
     FedCTC<-function(income1, income2, children,married){
       
