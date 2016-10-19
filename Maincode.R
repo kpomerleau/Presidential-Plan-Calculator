@@ -116,7 +116,7 @@ rm(list=ls())
       
           #deduct the 28% deductions again
       
-      federalincometaxBC<-federalincometaxBC - (Limit * 0.28)
+      federalincometaxBC<-federalincometaxBC #- (Limit * 0.28)
       
       taxableincome<-taxableincome-Limit
       
@@ -124,9 +124,11 @@ rm(list=ls())
       
       #Step 9: Child Tax Credit
       
-      ctc<-FedCTC(income1, income2, children,married)+ClintonCTC(income1, income2, children5, married)
+      ctc<-FedCTC(income1, income2, children,married)
       
         #new Clinton CTC
+      
+          ctc<-ctc + ClintonCTC(income1, income2, children5, married)
       
       #Earned Income Tax Credit
       
@@ -134,7 +136,7 @@ rm(list=ls())
       
       #Step 10: Federal Income Tax after credits
       
-      federalincometax<-federalincometaxBC-ctc-eitc
+      federalincometax<-federalincometaxBC+surtax-ctc-eitc
       
       #Step 12: Employee Payroll Taxes
       
@@ -164,7 +166,7 @@ rm(list=ls())
           
         }
       
-          if(federalincometax+employeepayrolltax < buffett){
+          if(federalincometax+employeepayrolltax < buffett & income1+income2 > 2000000){
             
             federalincometax<-federalincometax+(buffett-employeepayrolltax)
             
@@ -214,6 +216,20 @@ rm(list=ls())
       
         #reduce taxable income for childcare
       
+        if( (income1+income2) > (250000*(married+1) )) {
+          
+          childcare <- max(0,( 1-((income1+income2) - (250000 *(married+1))/(50000*(married+1))))*childcare)
+          
+        } else {
+          
+          childcare <- childcare
+          
+        }
+      
+        #Max childcare deduction at 12k
+      
+          childcare <- min(18000,childcare)
+      
           taxableincome<-max(taxableincome - childcare,0)
       
       #Step 8: Federal Income Tax
@@ -226,7 +242,9 @@ rm(list=ls())
       
       #Earned Income Tax Credit
       
-      eitc<-FedEITC(income1,income2,children+children5,married)
+      #eitc<-FedEITC(income1,income2,children+children5,married)
+      
+      eitc<-TrumpEITC(income1, income2, childcare)
       
       #Step 10: Federal Income Tax after credits
       
@@ -274,10 +292,10 @@ rm(list=ls())
     
 ##############Taxpayer Parameters###########
 
-children<-0
-children5<-2
-married<-0
-childcare<-5500
+children<-2
+children5<-0
+married<-1
+childcare<-15600
 itemizeddeductions<-0
 
   #Are you head of household? If you are single and have any children, yes, otherwise no:
@@ -292,8 +310,8 @@ itemizeddeductions<-0
       
     }
 
-income1<-35000
-income2<-00000
+income1<-15600
+income2<-15600
 
 
 ####Current Law Calculations
